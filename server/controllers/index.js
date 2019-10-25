@@ -14,7 +14,7 @@ const defaultDogData = {
   name: 'unknown',
   breed: 'unknown',
   age: 0,
-}
+};
 
 // object for us to keep track of the last Cat we made and dynamically update it sometimes
 let lastAddedCat = new Cat(defaultCatData);
@@ -51,9 +51,8 @@ const readAllCats = (req, res, callback) => {
 };
 
 const readAllDogs = (req, res, callback) => {
-
   Dog.find(callback);
-}
+};
 
 // function to find a specific cat on request.
 // Express functions always receive the request and the response.
@@ -114,17 +113,16 @@ const hostPage2 = (req, res) => {
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
 const hostPage3 = (req, res) => {
-    // res.render takes a name of a page to render.
-    // These must be in the folder you specified as views in your main app.js file
-    // Additionally, you don't need .jade because you registered the file type
-    // in the app.js as jade. Calling res.render('index')
-    // actually calls index.jade. A second parameter of JSON can be passed
-    // into the jade to be used as variables with #{varName}
+  // res.render takes a name of a page to render.
+  // These must be in the folder you specified as views in your main app.js file
+  // Additionally, you don't need .jade because you registered the file type
+  // in the app.js as jade. Calling res.render('index')
+  // actually calls index.jade. A second parameter of JSON can be passed
+  // into the jade to be used as variables with #{varName}
   res.render('page3');
 };
 
 const hostPage4 = (req, res) => {
-
   const callback = (err, docs) => {
     if (err) {
       return res.json({ err }); // if error, return it
@@ -244,7 +242,6 @@ const searchName = (req, res) => {
 };
 
 const setDogName = (req, res) => {
-
   if (!req.body.firstname || !req.body.lastname || !req.body.breed || !req.body.age) {
     return res.status(400).json({ error: 'firstname,lastname,breed, and age are all required' });
   }
@@ -275,10 +272,18 @@ const setDogName = (req, res) => {
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
 const searchDogName = (req, res) => {
-
   if (!req.query.name) {
     return res.json({ error: 'Name is required to perform a search' });
   }
+
+  lastAddedDog.age++;
+  const savePromise = lastAddedDog.save();
+  savePromise.then(() => res.json({
+    name: lastAddedDog.name,
+    breed: lastAddedDog.breed,
+    age: lastAddedDog.age,
+  }));
+  savePromise.catch((err) => res.json({ err }));
 
   return Dog.findByName(req.query.name, (err, doc) => {
     // errs, handle them
@@ -289,11 +294,6 @@ const searchDogName = (req, res) => {
     if (!doc) {
       return res.json({ error: 'Dog does not exist' });
     }
-
-    lastAddedDog.age++;
-    const savePromise = lastAddedDog.save();
-    savePromise.then(() => res.json({ name: lastAddedDog.name, breed: lastAddedDog.breed, age: lastAddedDog.age }));
-    savePromise.catch((err) => res.json({ err }));
 
     return res.json({ name: doc.name, breed: doc.breed, age: doc.age });
   });
